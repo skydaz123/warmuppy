@@ -5,70 +5,75 @@ const MongoStore = require("connect-mongo");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
+const app = express();
 
+// MongoDB connection
+mongoose.connect("mongodb://194.113.75.57:27017/sessions", {
+}).then(() => {
+  console.log("MongoDB connected");
+}).catch(err => {
+  console.error("Error connecting to MongoDB:", err);
+});
+
+// Define user schema
 const userSchema = new Schema({
-    username: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    verified: { type: Boolean, default: false }    
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  verified: { type: Boolean, default: false }    
 });
 
 const User = mongoose.model("User", userSchema);
 
-mongoose.connect("mongodb://194.113.75.57:27017/sessions")
-    .then(() => console.log("mongodb connected"))
-    .catch((err) => console.log("error connecting to db", err));
+// Session configuration
+app.use(session({
+  secret: "abc",
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 7,
+  },
+  resave: false,
+  saveUninitialized: true,
+  store: MongoStore.create({
+    mongoUrl: "mongodb://194.113.75.57:27017/sessions",
+  }),
+}));
 
-const app = express();
-
-
-app.use(
-    session({
-        secret: "abc",
-        cookie: {
-            maxAge: 1000 * 60 * 60 * 7,
-        },
-        resave: false,
-        saveUninitialized: true,
-        store: MongoStore.create({
-            mongoUrl: "mongodb://194.113.75.57:27017",
-        }),
-    }),
-)
-
+// Middleware to parse JSON bodies
 app.use(express.json());
+
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.urlencoded({ extended: true }));
+
 
 app.get("/hello", (request, response) => {
-    if (request.session.something === undefined){
-        request.session.something = 1;
-    }
-    else{
-        request.session.something++;
-    }
-    response.json({
-        something: request.session.something
-    })
+  if (request.session.something === undefined){
+    request.session.something = 1;
+  } else {
+    request.session.something++;
+  }
+  response.json({
+    something: request.session.something
+  });
 });
 
 app.post("/adduser", async (request, response) => {
-    const { username, password, email } = request.body;
-    try {
-        const existingUser = await User.findOne({ $or: [{ username }, { email }] });
-        if (existingUser){
-            return response.status(400).json({ error: "Username or email already exists "});
-        }
-
-        const newUser = new User({ username, password, email });
-        await newUser.save();
-
-        response.json({ message: "User created successfully! "});
+  const { username, password, email } = request.body;
+  try {
+    console.log("REQUEST BODY IS ", request.body);
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    if (existingUser){
+      return response.status(400).json({ error: "Username or email already exists" });
     }
-    catch (error) {
-        console.log("Error adding user", error);
-        response.status(500).json({ error: "internal server error" })
-    }
+
+    const newUser = new User({ username, password, email });
+    await newUser.save();
+
+    response.json({ message: "User created successfully" });
+  } catch (error) {
+    console.error("Error adding user:", error);
+    response.status(500).json({ error: "Internal server error" });
+  }
 });
 
 // Start the server
