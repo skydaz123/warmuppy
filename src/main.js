@@ -45,7 +45,13 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(express.urlencoded({ extended: true }));
 
+// Custom middleware to add X-CSE356 header
+app.use((req, res, next) => {
+  res.set('X-CSE356', '65b9adf7c9f3cb0d090f25f4'); 
+  next();
+});
 
+// GET route for 'hello'
 app.get("/hello", (request, response) => {
   if (request.session.something === undefined){
     request.session.something = 1;
@@ -53,26 +59,27 @@ app.get("/hello", (request, response) => {
     request.session.something++;
   }
   response.json({
+    status: 'OK',
     something: request.session.something
   });
 });
 
+// POST route for 'adduser'
 app.post("/adduser", async (request, response) => {
   const { username, password, email } = request.body;
   try {
-    console.log("REQUEST BODY IS ", request.body);
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser){
-      return response.status(400).json({ error: "Username or email already exists" });
+      return response.status(400).json({ status: 'ERROR', error: "Username or email already exists" });
     }
 
     const newUser = new User({ username, password, email });
     await newUser.save();
 
-    response.json({ message: "User created successfully" });
+    response.json({ status: 'OK', message: "User created successfully" });
   } catch (error) {
     console.error("Error adding user:", error);
-    response.status(500).json({ error: "Internal server error" });
+    response.status(500).json({ status: 'ERROR', error: "Internal server error" });
   }
 });
 
