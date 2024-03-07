@@ -161,7 +161,7 @@ app.get("/verify", async (request, response) => {
             user.verified = true;
             await user.save();
             console.log("verification successful user verification status is:", user.verified);
-            return response.status(200).response({ status: 'OK', message: 'You are successfully verified' });
+            return response.status(200).json({ status: 'OK', message: 'You are successfully verified' });
         } else {
             return response.status(400).json({ status: "ERROR", Message: "Invalid verification key" });
         }
