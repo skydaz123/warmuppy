@@ -117,47 +117,78 @@ app.get('/tiles/:l/:x/:y', (req, res) => {
 
 // GET route for 'hello'
 app.get("/hello", (request, response) => {
-  console.log("Hello");
-  if (request.session.something === undefined) {
-    request.session.something = 1;
-  } else {
-    request.session.something++;
-  }
-  response.json({
-    status: 'OK',
-    something: request.session.something
-  });
-});
-
-// POST route for 'adduser'
-app.post("/adduser", async (request, response) => {
-  const { username, password, email } = request.body;
-  try {
-    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
-    if (existingUser) {
-      return response.status(400).json({ status: 'ERROR', error: "Username or email already exists" });
+    if (request.session.something === undefined) {
+      request.session.something = 1;
+    } else {
+      request.session.something++;
     }
-    let hash = await bcrypt.hash(email, 1);
-
-    const newUser = new User({ username, password, email });
-    await newUser.save();
-
-    response.json({ status: 'OK', message: "User created successfully" });
-
-    //add email sending logic with email + hash (key)
+    response.json({
+      status: 'OK',
+      something: request.session.something
+    });
+  }); // Add this closing curly brace
+  
+  // POST route for 'adduser'
+  app.post("/adduser", async (request, response) => {
+    const { username, password, email } = request.body;
+    console.log("BODY IS", request.body);
     try {
-      await sendEmail(email, hash);
+      const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+      if (existingUser) {
+        return response.status(400).json({ status: 'ERROR', error: "Username or email already exists" });
+      }
+      let hash = await bcrypt.hash(email, 1);
+  
+      const newUser = new User({ username, password, email });
+      await newUser.save();
+  
+      response.json({ status: 'OK', message: "User created successfully" });
+  
+      //add email sending logic with email + hash (key)
+      try {
+        await sendEmail(email, hash);
+      }
+      catch(e)
+      {
+        console.log("Error sending email", e);
+      }
+    } catch (error) {
+      console.error("Error adding user:", error);
+      response.status(500).json({ status: 'ERROR', error: "Internal server error" });
     }
-    catch (e) {
-      console.log("Error sending email", e);
+  });
+  
+
+app.post("/login", async (request, response) => {
+    const { username, email } = request.body;
+    try {
+        const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+        if (!existingUser){
+            return response.status(400).json({ status: 'ERROR', message: "Credentials entered are invalid" })
+        }
+        else if (existingUser.verified){
+            request.session.isAuthenticated = true;
+            request.session.userId = existingUser._id;
+            return response.status(200).json({ status: 'OK', message: "Logged in successfully" });
+        }
+        else if (!existingUser.verified){
+            return response.status(400).json({ status: 'ERROR', message: "You are not verified yet. Please verify through email link" });
+        }
     }
-  } catch (error) {
-    console.error("Error adding user:", error);
-    response.status(500).json({ status: 'ERROR', error: "Internal server error" });
-  }
+    catch (error) {
+        console.log("Error logging in:", error);
+        response.status(500).json({ status: 'ERROR', error: "Internal server error" });
+    }
 });
 
-// Start the server
+
+app.post("/logout", async (request, response) => {
+    console.log("logout hit");
+    request.session.isAuthenicated = false;
+    request.session.userId = undefined;
+    response.status(200).json({ status:'OK', message: "User successfully logged out" });
+});
+
 const port = 80;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
