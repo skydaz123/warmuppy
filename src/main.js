@@ -129,7 +129,7 @@ app.post("/adduser", async (request, response) => {
     try {
         const existingUser = await User.findOne({ $or: [{ username }, { email }] });
         if (existingUser) {
-            return response.status(400).json({ status: 'ERROR', error: "Username or email already exists" });
+            return response.status(401).json({ status: 'ERROR', error: "Username or email already exists" });
         }
         let hash = await bcrypt.hash(email, 1);
         console.log("hash is", hash);
