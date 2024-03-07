@@ -84,6 +84,9 @@ async function sendEmail(email, hash) {
 }
 
 app.get('/tiles/:l/:x/:y', (req, res) => {
+    if (!req.session.isAuthenicated){
+        return res.status(200).json({ status: "ERROR" })
+    }
     const { l, x, y } = req.params;
     const newX = parseInt(x);
     const newY = parseInt(y);
