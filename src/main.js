@@ -200,6 +200,7 @@ app.post("/login", async (request, response) => {
         else if (existingUser.verified) {
             request.session.isAuthenticated = true;
             request.session.userId = existingUser._id;
+            console.log("SESSION IS:", request.session.isAuthenicated);
             return response.status(200).json({ status: 'OK', message: "Logged in successfully" });
         }
         else if (!existingUser.verified) {
