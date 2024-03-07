@@ -87,7 +87,10 @@
                     console.log("User is logged in");
                 } else if (response.status === 404) {
                     console.log("User is not logged in");
-                    document.getElementById('wp2').style.display = 'none';
+                    const wp2Element = document.getElementById('wp2');
+                    if (wp2Element) {
+                        wp2Element.remove();
+                    }
                 }
             })
             .catch(error => {
