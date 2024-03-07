@@ -83,16 +83,16 @@ async function sendEmail(email, hash) {
     }
 }
 
-app.get('/check-authentication', (request, response) => {
-    console.log("NO SESSION DETECTED");
-    if (!request.session.isAuthenicated){
-        console.log("HELLO");
-        return response.status(200).send();
-    }
-    else{
-        console.log("SOMETHING WENT WRONG");
-    }
-});
+// app.get('/check-authentication', (request, response) => {
+//     console.log("NO SESSION DETECTED");
+//     if (!request.session.isAuthenicated){
+//         console.log("HELLO");
+//         return response.status(200).send();
+//     }
+//     else{
+//         console.log("SOMETHING WENT WRONG");
+//     }
+// });
 
 app.get('/tiles/:l/:x/:y', (req, res) => {
     if (!req.session.isAuthenicated){

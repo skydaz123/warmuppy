@@ -80,62 +80,63 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="../src/main.js"></script>
     <script>
-        fetch('/check-authentication')
-            .then(response => {
-                console.log("RESPONSE IS", response);
-                if (response.status === 200) {
-                    document.getElementById('wp2').style.display = 'none';
-                    console.log("NOTHING DETECTED");
-                } else {
-                    var map = L.map('wp2', {
-                        crs: L.CRS.Simple,
-                        minZoom: 1,
-                        maxZoom: 8,
-                    });
+        // fetch('/check-authentication')
+        //     .then(response => {
+        //         console.log("RESPONSE IS", response);
+        //         if (response.status === 200) {
+        //             document.getElementById('wp2').style.display = 'none';
+        //             console.log("");
+        //             return;
+        //         } else {
+        //             throw new Error('Failed to fetch authentication status');
+        //         }
+        //     });
 
-                    // tileSize defines the size of a single tile in pixels
-                    var tileSize = 512;
+        var map = L.map('wp2', {
+            crs: L.CRS.Simple,
+            minZoom: 1,
+            maxZoom: 8,
+        });
 
-                    // Calculate bounds based on the single tile size at zoom level 1
-                    // The map.unproject method converts a point in pixel coordinates to geographical coordinates
-                    // Here, [tileSize, tileSize] is the bottom-right corner of the tile in pixel coordinates
-                    // We use zoom level 1 since it's our starting zoom level where one tile fits the entire map view
-                    var southWest = map.unproject([0, tileSize], 1);
-                    var northEast = map.unproject([tileSize, 0], 1);
-                    var bounds = new L.LatLngBounds(southWest, northEast);
-                    // Initialize the tile layer
-                    var tiles = L.tileLayer('/tiles/l{z}/{x}/{y}.jpg', {
-                        minZoom: 1,
-                        maxZoom: 8, // Adjust based on how many zoom levels you have
-                        tileSize: tileSize,
-                        bounds: bounds,
-                        noWrap: true,
-                        attribution: 'Cloud Drifters',
-                    }).addTo(map);
-                    // Set the view to the center of your bounds and the appropriate zoom level
-                    map.fitBounds(bounds);
+        // tileSize defines the size of a single tile in pixels
+        var tileSize = 512;
 
-                    // Handling the style change
-                    document.querySelectorAll('input[name="style"]').forEach((elem) => {
-                        elem.addEventListener("change", applyStyle);
-                    });
+        // Calculate bounds based on the single tile size at zoom level 1
+        // The map.unproject method converts a point in pixel coordinates to geographical coordinates
+        // Here, [tileSize, tileSize] is the bottom-right corner of the tile in pixel coordinates
+        // We use zoom level 1 since it's our starting zoom level where one tile fits the entire map view
+        var southWest = map.unproject([0, tileSize], 1);
+        var northEast = map.unproject([tileSize, 0], 1);
+        var bounds = new L.LatLngBounds(southWest, northEast);
+        // Initialize the tile layer
+        var tiles = L.tileLayer('/tiles/l{z}/{x}/{y}.jpg', {
+            minZoom: 1,
+            maxZoom: 8, // Adjust based on how many zoom levels you have
+            tileSize: tileSize,
+            bounds: bounds,
+            noWrap: true,
+            attribution: 'Cloud Drifters',
+        }).addTo(map);
+        // Set the view to the center of your bounds and the appropriate zoom level
+        map.fitBounds(bounds);
 
-                    function applyStyle() {
-                        console.log("Applying style");
-                        var style = document.querySelector('input[name="style"]:checked').value;
-                        var mapDiv = document.getElementById('wp2');
-                        if (style === 'bw') {
-                            // Apply grayscale filter for black and white style
-                            mapDiv.style.filter = 'grayscale(100%)';
-                        } else {
-                            // Remove filter for color style
-                            mapDiv.style.filter = '';
-                        }
-                    }
-                }
-            });
+        // Handling the style change
+        document.querySelectorAll('input[name="style"]').forEach((elem) => {
+            elem.addEventListener("change", applyStyle);
+        });
 
-
+        function applyStyle() {
+            console.log("Applying style");
+            var style = document.querySelector('input[name="style"]:checked').value;
+            var mapDiv = document.getElementById('wp2');
+            if (style === 'bw') {
+                // Apply grayscale filter for black and white style
+                mapDiv.style.filter = 'grayscale(100%)';
+            } else {
+                // Remove filter for color style
+                mapDiv.style.filter = '';
+            }
+        }
     </script>
 
 
