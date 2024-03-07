@@ -98,7 +98,7 @@ app.get('/tiles/l:layer/:x/:y.jpg', async (req, res) => {
   }
   catch(error)
   {
-    console.log("Fuck you");
+    console.log("error");
   }
 });
 
