@@ -152,7 +152,7 @@ app.post("/adduser", async (request, response) => {
 });
 
 app.get('/check-authentication', (request, response) => {
-    if (request.session.isAuthenicated){
+    if (request.session.isAuthenticated){
         console.log("User is authenicated");
         return response.status(200).send();
     }
@@ -200,7 +200,7 @@ app.post("/login", async (request, response) => {
         else if (existingUser.verified) {
             request.session.isAuthenticated = true;
             request.session.userId = existingUser._id;
-            console.log("SESSION IS:", request.session.isAuthenicated);
+            console.log("SESSION IS:", request.session.isAuthenticated);
             return response.status(200).json({ status: 'OK', message: "Logged in successfully" });
         }
         else if (!existingUser.verified) {
