@@ -33,7 +33,8 @@ const userSchema = new Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  verified: { type: Boolean, default: false }
+  verified: { type: Boolean, default: false },
+  verificationKey: { type: String }
 });
 
 const User = mongoose.model("User", userSchema);
@@ -115,49 +116,59 @@ app.get('/tiles/:l/:x/:y', (req, res) => {
   });
 });
 
-// GET route for 'hello'
-app.get("/hello", (request, response) => {
-    if (request.session.something === undefined) {
-      request.session.something = 1;
-    } else {
-      request.session.something++;
-    }
-    response.json({
-      status: 'OK',
-      something: request.session.something
-    });
-  }); // Add this closing curly brace
-  
-  // POST route for 'adduser'
-  app.post("/adduser", async (request, response) => {
+
+app.post("/adduser", async (request, response) => {
     const { username, password, email } = request.body;
     console.log("BODY IS", request.body);
     try {
-      const existingUser = await User.findOne({ $or: [{ username }, { email }] });
-      if (existingUser) {
+        const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+        if (existingUser) {
         return response.status(400).json({ status: 'ERROR', error: "Username or email already exists" });
-      }
-      let hash = await bcrypt.hash(email, 1);
-  
-      const newUser = new User({ username, password, email });
-      await newUser.save();
-  
-      response.json({ status: 'OK', message: "User created successfully" });
-  
-      //add email sending logic with email + hash (key)
-      try {
+        }
+        let hash = await bcrypt.hash(email, 1);
+
+        const newUser = new User({ username, password, email, hash });
+        await newUser.save();
+
+        response.json({ status: 'OK', message: "User created successfully" });
+
+        //add email sending logic with email + hash (key)
+        try {
         await sendEmail(email, hash);
-      }
-      catch(e)
-      {
+        }
+        catch(e)
+        {
         console.log("Error sending email", e);
+        }
+    } catch (error) {
+        console.error("Error adding user:", error);
+        response.status(500).json({ status: 'ERROR', error: "Internal server error" });
+    }
+    });
+
+app.get("/verify", async (request, response) => {
+    const { email, key } = request.query;
+    console.log("fired off");
+    try {
+      // Find the user with the provided email
+      const user = await User.findOne({ email });
+      // Check if the user exists and the verification key matches
+      if (user && user.verificationKey === key) {
+        // Update the user's verified status to true
+        user.verified = true;
+        await user.save();
+        console.log("verification successful");
+        return response.redirect('/');
+      } else {
+        return response.status(400).send("Invalid verification link");
       }
     } catch (error) {
-      console.error("Error adding user:", error);
-      response.status(500).json({ status: 'ERROR', error: "Internal server error" });
+      console.error("Error verifying email:", error);
+      response.status(500).send("Internal server error");
     }
   });
   
+
 
 app.post("/login", async (request, response) => {
     const { username, email } = request.body;
