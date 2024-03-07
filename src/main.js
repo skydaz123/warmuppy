@@ -83,7 +83,7 @@ async function sendEmail(email, hash) {
     }
 }
 
-app.get('/check-authenication', (request, response) => {
+app.get('/check-authentication', (request, response) => {
     console.log("NO SESSION DETECTED");
     if (!request.session){
         return res.status(200).send();
