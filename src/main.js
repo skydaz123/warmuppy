@@ -83,38 +83,12 @@ async function sendEmail(email, hash) {
     }
 }
 
-// main.js
-
-// document.addEventListener("DOMContentLoaded", function() {
-//     // Check authentication status when the DOM is loaded
-//     checkAuthenticationStatus();
-// });
-
-// function checkAuthenticationStatus() {
-//     // Make an AJAX request to the endpoint that checks authentication status
-//     fetch('/check-authentication')
-//         .then(response => {
-//             if (response.ok) {
-//                 // If the response is successful, parse the JSON data
-//                 return response.json();
-//             } else {
-//                 throw new Error('Failed to fetch authentication status');
-//             }
-//         })
-//         .then(data => {
-//             // If the user is authenticated, show the Leaflet map
-//             if (data.isAuthenticated) {
-//                 document.getElementById('wp2').style.display = 'block';
-//             } else {
-//                 // If the user is not authenticated, hide the Leaflet map
-//                 document.getElementById('wp2').style.display = 'none';
-//             }
-//         })
-//         .catch(error => {
-//             console.error('Error checking authentication status:', error);
-//         });
-// }
-
+app.get('check-authenication', (request, response) => {
+    console.log("NO SESSION DETECTED");
+    if (!request.session){
+        return res.status(200);
+    }
+});
 app.get('/tiles/:l/:x/:y', (req, res) => {
     if (!req.session.isAuthenicated){
         return res.status(200).json({ status: "ERROR" })
