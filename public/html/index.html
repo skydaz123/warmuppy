@@ -57,7 +57,6 @@
         var southWest = map.unproject([0, tileSize], 1);
         var northEast = map.unproject([tileSize, 0], 1);
         var bounds = new L.LatLngBounds(southWest, northEast);
-    
         // Initialize the tile layer
         var tiles = L.tileLayer('/tiles/l{z}/{x}/{y}.jpg', {
             minZoom: 1,

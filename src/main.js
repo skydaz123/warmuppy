@@ -8,6 +8,8 @@ const bcrypt = require('bcrypt');
 const nodemailer = require("nodemailer");
 const app = express();
 const fs = require('fs');
+const sharp = require('sharp');
+
 // MongoDB connection
 mongoose.connect("mongodb://194.113.75.57:27017/sessions", {
 }).then(() => {
@@ -23,7 +25,7 @@ const transporter = nodemailer.createTransport({
   tls: {
     rejectUnauthorized: false
   },
-  connectionTimeout: 10000 
+  connectionTimeout: 10000
 });
 
 // Define user schema
@@ -53,7 +55,7 @@ app.use(session({
 app.use(express.json());
 
 // Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, '../public/html')));
 app.use(express.urlencoded({ extended: true }));
 
 // Custom middleware to add X-CSE356 header
@@ -80,30 +82,42 @@ async function sendEmail(email, hash) {
   }
 }
 
-app.get('/tiles/l:layer/:x/:y.jpg', async (req, res) => {
-  try {
-    const { layer, x, y } = req.params;
-    const newX = parseInt(x);
-    const newY = parseInt(y);
-    console.log(x, y, newX, newY);
-    const tilePath = path.join('public', 'tiles', `l${layer}`, `${newX-1}`, `${newY-1}.jpg`);
-    console.log("Hello ", newX, newY);
-    // Attempt to send the file directly, catching any errors if the file doesn't exist
-    res.sendFile(tilePath, (err) => {
-        if (err) {
-            console.log(err); // Log the error to understand what went wrong
-            res.status(404).send('Tile not found');
-        }
-    });
-  }
-  catch(error)
-  {
-    console.log("error");
-  }
+app.get('/tiles/:l/:x/:y', (req, res) => {
+  const { l, x, y } = req.params;
+  const newX = parseInt(x);
+  const newY = parseInt(y);
+  const { style } = req.query;
+  console.log(req.params, req.query);
+  console.log("Hello ", newX, newY);
+  const tilePath = path.join(__dirname, '../public', 'tiles', `${l}`, `${newX-1}`, `${newY-1}.jpg`);
+  fs.access(tilePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(404).send('Tile not found');
+    }
+
+    if (style === 'bw') {
+      // If the style is 'bw', apply a grayscale filter
+      sharp(tilePath)
+        .grayscale()
+        .toBuffer()
+        .then(data => {
+          res.type('jpg').send(data); // Send the processed image
+        })
+        .catch(err => {
+          console.error(err);
+          res.status(500).send('Error processing image');
+        });
+    } else {
+      // If no style is specified or it's not 'bw', send the original image
+      res.sendFile(tilePath);
+    }
+  });
 });
 
 // GET route for 'hello'
 app.get("/hello", (request, response) => {
+  console.log("Hello");
   if (request.session.something === undefined) {
     request.session.something = 1;
   } else {
@@ -134,8 +148,7 @@ app.post("/adduser", async (request, response) => {
     try {
       await sendEmail(email, hash);
     }
-    catch(e)
-    {
+    catch (e) {
       console.log("Error sending email", e);
     }
   } catch (error) {
