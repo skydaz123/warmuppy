@@ -87,7 +87,7 @@ app.get('/check-authentication', (request, response) => {
     console.log("NO SESSION DETECTED");
     if (!request.session.isAuthenicated){
         console.log("HELLO");
-        return res.status(200).send();
+        return response.status(200).send();
     }
     else{
         console.log("SOMETHING WENT WRONG");
