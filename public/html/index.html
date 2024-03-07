@@ -82,6 +82,7 @@
     <script>
         fetch('/check-authentication')
             .then(response => {
+                console.log("RESPONSE IS", response);
                 if (response.status === 200) {
                     document.getElementById('wp2').style.display = 'none';
                     console.log("NOTHING DETECTED");
