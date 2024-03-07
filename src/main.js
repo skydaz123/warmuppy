@@ -85,10 +85,10 @@ async function sendEmail(email, hash) {
 
 // main.js
 
-document.addEventListener("DOMContentLoaded", function() {
-    // Check authentication status when the DOM is loaded
-    checkAuthenticationStatus();
-});
+// document.addEventListener("DOMContentLoaded", function() {
+//     // Check authentication status when the DOM is loaded
+//     checkAuthenticationStatus();
+// });
 
 // function checkAuthenticationStatus() {
 //     // Make an AJAX request to the endpoint that checks authentication status
