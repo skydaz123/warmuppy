@@ -156,7 +156,7 @@ app.get("/verify", async (request, response) => {
         console.log("USER IS", user);
         console.log("IS THE KEY AND THE USER KEY THE SAME?", user.verificationKey === key);
         // Check if the user exists and the verification key matches
-        if (user && user.verificationKey === key) {
+        if (user && user.verificationKey.trim() === key.trim()) {
             // Update the user's verified status to true
             user.verified = true;
             await user.save();
