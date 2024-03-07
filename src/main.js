@@ -126,19 +126,19 @@ app.post("/adduser", async (request, response) => {
         return response.status(400).json({ status: 'ERROR', error: "Username or email already exists" });
         }
         let hash = await bcrypt.hash(email, 1);
-
-        const newUser = new User({ username, password, email, hash });
+        console.log("hash is", hash);
+        const newUser = new User({ username, password, email, verificationKey: hash });
         await newUser.save();
-
+        console.log("user hash is ", newUser.verificationKey);
         response.json({ status: 'OK', message: "User created successfully" });
 
         //add email sending logic with email + hash (key)
         try {
-        await sendEmail(email, hash);
+            await sendEmail(email, hash);
         }
         catch(e)
         {
-        console.log("Error sending email", e);
+            console.log("Error sending email", e);
         }
     } catch (error) {
         console.error("Error adding user:", error);
@@ -158,8 +158,8 @@ app.get("/verify", async (request, response) => {
         // Update the user's verified status to true
         user.verified = true;
         await user.save();
-        console.log("verification successful");
-        return response.redirect('/');
+        console.log("verification successful user verification status is:", user.verified);
+        return response.status(200).response({ status:'OK', message:'You are successfully verified' });
       } else {
         return response.status(400).send("Invalid verification link");
       }
