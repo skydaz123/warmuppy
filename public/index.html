@@ -20,7 +20,44 @@
             <input type="submit" value="Submit">
         </form>
     </div>
-    <!-- Correct path to main.js -->
+    <br>
+    <br>
+    <div>
+        <form action="/login" method="post">
+            <label for="username">Username:</label><br>
+            <input type="text" id="username" name="username"><br>
+
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password"><br>
+
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+    <br>
+    <br>
+    <div>
+        <!-- Use JavaScript to trigger the logout functionality -->
+        <button id="logoutBtn">Logout</button>
+    </div>
     <script src="../src/main.js"></script>
+    <script>
+        // Add event listener to the logout button
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            // Send a POST request to the logout endpoint
+            fetch('/logout', {
+                method: 'POST',
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '/login';
+                } else {
+                    console.error('Logout failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error during logout:', error);
+            });
+        });
+    </script>
 </body>
 </html>

@@ -51,8 +51,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// GET route for 'hello'
-app.get("/hello", (request, response) => {
+app.get("/", (request, response) => {
   if (request.session.something === undefined){
     request.session.something = 1;
   } else {
@@ -67,6 +66,7 @@ app.get("/hello", (request, response) => {
 // POST route for 'adduser'
 app.post("/adduser", async (request, response) => {
   const { username, password, email } = request.body;
+  console.log("BODY IS", request.body);
   try {
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser){
@@ -83,7 +83,39 @@ app.post("/adduser", async (request, response) => {
   }
 });
 
-// Start the server
+app.post("/login", async (request, response) => {
+    const { username, email } = request.body;
+    try {
+        const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+        if (!existingUser){
+            return response.status(400).json({ status: 'ERROR', message: "Credentials entered are invalid" })
+        }
+        else if (existingUser.verified){
+            return response.status(200).json({ status: 'OK', message: "Logged in successfully" });
+        }
+        else if (!existingUser.verified){
+            return response.status(400).json({ status: 'ERROR', message: "You are not verified yet. Please verify through email link" });
+        }
+    }
+    catch (error) {
+        console.log("Error logging in:", error);
+        response.status(500).json({ status: 'ERROR', error: "Internal server error" });
+    }
+});
+
+app.post("/logout", async (request, response) => {
+    console.log("logout hit");
+    request.session.destroy((err) => {
+      if (err) {
+        console.error("Error destroying session", error);
+        response.status(500).json({ status: 'ERROR', error: 'Internal server error' });
+      }
+      else{
+        response.json({ status:'OK', message:'Logout successful' });
+      }
+    });
+});
+
 const port = 80;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
