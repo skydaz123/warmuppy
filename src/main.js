@@ -85,7 +85,7 @@ async function sendEmail(email, hash) {
 
 app.get('/check-authentication', (request, response) => {
     console.log("NO SESSION DETECTED");
-    if (!request.session){
+    if (!request.session.isAuthenicated){
         return res.status(200).send();
     }
 });
