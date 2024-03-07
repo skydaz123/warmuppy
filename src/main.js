@@ -52,16 +52,21 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (request, response) => {
-  if (request.session.something === undefined){
-    request.session.something = 1;
-  } else {
-    request.session.something++;
-  }
-  response.json({
-    status: 'OK',
-    something: request.session.something
+    if (request.session.isAuthenticated){
+      print("cookie in session");
+      response.json({
+        status: 'OK',
+        isAuthenticated: true,
+        username: request.session.username
+      });
+    } else {
+      response.json({
+        status: 'OK',
+        isAuthenticated: false
+      });
+    }
   });
-});
+  
 
 // POST route for 'adduser'
 app.post("/adduser", async (request, response) => {
@@ -91,6 +96,8 @@ app.post("/login", async (request, response) => {
             return response.status(400).json({ status: 'ERROR', message: "Credentials entered are invalid" })
         }
         else if (existingUser.verified){
+            request.session.isAuthenticated = true;
+            request.session.userId = existingUser._id;
             return response.status(200).json({ status: 'OK', message: "Logged in successfully" });
         }
         else if (!existingUser.verified){
@@ -103,17 +110,11 @@ app.post("/login", async (request, response) => {
     }
 });
 
+
 app.post("/logout", async (request, response) => {
-    console.log("logout hit");
-    request.session.destroy((err) => {
-      if (err) {
-        console.error("Error destroying session", error);
-        response.status(500).json({ status: 'ERROR', error: 'Internal server error' });
-      }
-      else{
-        response.json({ status:'OK', message:'Logout successful' });
-      }
-    });
+    request.session.isAuthenicated = false;
+    request.session.userId = undefined;
+    response.status(200).json({ status:'OK', message: "User successfully logged out" });
 });
 
 const port = 80;
