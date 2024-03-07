@@ -19,7 +19,7 @@ mongoose.connect("mongodb://194.113.75.57:27017/sessions", {
 });
 
 const transporter = nodemailer.createTransport({
-    host: '130.245.171.151',
+    host: 'grader.cse356.compas.cs.stonybrook.edu',
     port: 11587,
     secure: false,
     tls: {
