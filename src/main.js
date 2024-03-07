@@ -83,6 +83,11 @@ async function sendEmail(email, hash) {
     }
 }
 
+app.get('check-authenication', (request, response) => {
+    if (!request.session.isAuthenicated){
+        return res.status(200);
+    }
+});
 app.get('/tiles/:l/:x/:y', (req, res) => {
     if (!req.session.isAuthenicated){
         return res.status(200).json({ status: "ERROR" })

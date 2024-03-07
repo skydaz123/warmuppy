@@ -80,6 +80,27 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="../src/main.js"></script>
     <script>
+        fetch('/check-authentication')
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById('wp2').style.display = 'none';
+                    return;
+                } else {
+                    throw new Error('Failed to fetch authentication status');
+                }
+            })
+            .then(data => {
+                // If the user is authenticated, show the Leaflet map
+                if (data.isAuthenticated) {
+                    document.getElementById('wp2').style.display = 'block';
+                } else {
+                    // If the user is not authenticated, hide the Leaflet map
+                    document.getElementById('wp2').style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error checking authentication status:', error);
+            });
         var map = L.map('wp2', {
             crs: L.CRS.Simple,
             minZoom: 1,
