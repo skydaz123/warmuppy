@@ -103,7 +103,6 @@ app.get('/tiles/l:layer/:x/:y.jpg', async (req, res) => {
 });
 
 // GET route for 'hello'
-// GET route for 'hello'
 app.get("/hello", (request, response) => {
     if (request.session.something === undefined) {
       request.session.something = 1;
@@ -171,6 +170,7 @@ app.post("/login", async (request, response) => {
 
 
 app.post("/logout", async (request, response) => {
+    console.log("logout hit");
     request.session.isAuthenicated = false;
     request.session.userId = undefined;
     response.status(200).json({ status:'OK', message: "User successfully logged out" });
