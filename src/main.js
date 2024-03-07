@@ -88,7 +88,7 @@ async function sendEmail(email, hash) {
 app.get('/tiles/:l/:x/:y', (req, res) => {
     if (!req.session.isAuthenicated){
         // document.getElementById('wp2').style.display = 'none';
-        return res.status(200).json({ status: "ERROR", message: "User not authenicated"})
+        return res.status(401).json({ status: "ERROR", message: "User not authenicated"})
     }
     const { l, x, y } = req.params;
     const newX = parseInt(x);
@@ -129,7 +129,7 @@ app.post("/adduser", async (request, response) => {
     try {
         const existingUser = await User.findOne({ $or: [{ username }, { email }] });
         if (existingUser) {
-            return response.status(200).json({ status: 'ERROR', error: "Username or email already exists" });
+            return response.status(400).json({ status: 'ERROR', error: "Username or email already exists" });
         }
         let hash = await bcrypt.hash(email, 1);
         console.log("hash is", hash);
