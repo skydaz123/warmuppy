@@ -134,7 +134,7 @@ app.post("/adduser", async (request, response) => {
 
         //add email sending logic with email + hash (key)
         try {
-            await sendEmail(email, hash);
+            await sendEmail(email, email);
         }
         catch (e) {
             console.log("Error sending email", e);
@@ -156,18 +156,18 @@ app.get("/verify", async (request, response) => {
         console.log("USER IS", user);
         console.log("IS THE KEY AND THE USER KEY THE SAME?", user.verificationKey === key);
         // Check if the user exists and the verification key matches
-        if (user && user.verificationKey.trim() === key.trim()) {
+        if (user && bcrypt.compare(user.verificationKey, key)) {
             // Update the user's verified status to true
             user.verified = true;
             await user.save();
             console.log("verification successful user verification status is:", user.verified);
             return response.status(200).response({ status: 'OK', message: 'You are successfully verified' });
         } else {
-            return response.status(400).send("Invalid verification link");
+            return response.status(400).json({ status: "ERROR", Message: "Invalid verification key" });
         }
     } catch (error) {
         console.error("Error verifying email:", error);
-        response.status(500).send("Internal server error");
+        response.status(500).json({ status: "ERROR", Message: "Internal server error" });
     }
 });
 
