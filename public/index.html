@@ -1,10 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add User</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="/style.css" />
+    <style>
+        #wp2 {
+            height: 500px;
+            width: 500px
+        }
+    </style>
 </head>
+
 <body>
     <div>
         <form action="/adduser" method="post">
@@ -20,7 +30,66 @@
             <input type="submit" value="Submit">
         </form>
     </div>
-    <!-- Correct path to main.js -->
+
+    <div id="wp2"></div>
+    <form>
+        <input type="radio" id="color" name="style" value="color" checked>
+        <label for="color">Color</label><br>
+        <input type="radio" id="bw" name="style" value="bw">
+        <label for="bw">Black & White</label>
+    </form>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="../src/main.js"></script>
+    <script>
+        var map = L.map('wp2', {
+            crs: L.CRS.Simple,
+            minZoom: 1,
+            maxZoom: 8,
+        });
+    
+        // tileSize defines the size of a single tile in pixels
+        var tileSize = 512;
+    
+        // Calculate bounds based on the single tile size at zoom level 1
+        // The map.unproject method converts a point in pixel coordinates to geographical coordinates
+        // Here, [tileSize, tileSize] is the bottom-right corner of the tile in pixel coordinates
+        // We use zoom level 1 since it's our starting zoom level where one tile fits the entire map view
+        var southWest = map.unproject([0, tileSize], 1);
+        var northEast = map.unproject([tileSize, 0], 1);
+        var bounds = new L.LatLngBounds(southWest, northEast);
+    
+        // Initialize the tile layer
+        var tiles = L.tileLayer('/tiles/l{z}/{x}/{y}.jpg', {
+            minZoom: 1,
+            maxZoom: 8, // Adjust based on how many zoom levels you have
+            tileSize: tileSize,
+            bounds: bounds,
+            noWrap: true,
+            attribution: 'Cloud Drifters',
+        }).addTo(map);
+        // Set the view to the center of your bounds and the appropriate zoom level
+        map.fitBounds(bounds);
+    
+        // Handling the style change
+        document.querySelectorAll('input[name="style"]').forEach((elem) => {
+            elem.addEventListener("change", applyStyle);
+        });
+    
+        function applyStyle() {
+            console.log("Applying style");
+            var style = document.querySelector('input[name="style"]:checked').value;
+            var mapDiv = document.getElementById('wp2');
+            if (style === 'bw') {
+                // Apply grayscale filter for black and white style
+                mapDiv.style.filter = 'grayscale(100%)';
+            } else {
+                // Remove filter for color style
+                mapDiv.style.filter = '';
+            }
+        }
+    </script>
+    
+
 </body>
+
 </html>

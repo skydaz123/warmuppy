@@ -7,7 +7,7 @@ const { Schema } = mongoose;
 const bcrypt = require('bcrypt');
 const nodemailer = require("nodemailer");
 const app = express();
-
+const fs = require('fs');
 // MongoDB connection
 mongoose.connect("mongodb://194.113.75.57:27017/sessions", {
 }).then(() => {
@@ -80,6 +80,27 @@ async function sendEmail(email, hash) {
   }
 }
 
+app.get('/tiles/l:layer/:x/:y.jpg', async (req, res) => {
+  try {
+    const { layer, x, y } = req.params;
+    const newX = parseInt(x);
+    const newY = parseInt(y);
+    console.log(x, y, newX, newY);
+    const tilePath = path.join('public', 'tiles', `l${layer}`, `${newX-1}`, `${newY-1}.jpg`);
+    console.log("Hello ", newX, newY);
+    // Attempt to send the file directly, catching any errors if the file doesn't exist
+    res.sendFile(tilePath, (err) => {
+        if (err) {
+            console.log(err); // Log the error to understand what went wrong
+            res.status(404).send('Tile not found');
+        }
+    });
+  }
+  catch(error)
+  {
+    console.log("Fuck you");
+  }
+});
 
 // GET route for 'hello'
 app.get("/hello", (request, response) => {
@@ -122,7 +143,6 @@ app.post("/adduser", async (request, response) => {
     response.status(500).json({ status: 'ERROR', error: "Internal server error" });
   }
 });
-
 
 // Start the server
 const port = 80;
