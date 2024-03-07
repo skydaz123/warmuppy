@@ -52,21 +52,21 @@
     <script src="../src/main.js"></script>
     <script>
         // Add event listener to the logout button
-        document.getElementById('logoutBtn').addEventListener('click', function() {
+        document.getElementById('logoutBtn').addEventListener('click', function () {
             // Send a POST request to the logout endpoint
             fetch('/logout', {
                 method: 'POST',
             })
-            .then(response => {
-                if (response.ok) {
-                    window.location.href = '/';
-                } else {
-                    console.error('Logout failed');
-                }
-            })
-            .catch(error => {
-                console.error('Error during logout:', error);
-            });
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '/';
+                    } else {
+                        console.error('Logout failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error during logout:', error);
+                });
         });
     </script>
 
@@ -80,15 +80,27 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="../src/main.js"></script>
     <script>
+        fetch('/check-authentication')
+            .then(response => {
+                console.log("RESPONSE IS", response);
+                if (response.status === 200) {
+                    console.log("User is logged in");
+                } else if (response.status === 404) {
+                    console.log("User is not logged in");
+                    document.getElementById('wp2').style.display = 'none';
+                    return;
+                }
+            });
+
         var map = L.map('wp2', {
             crs: L.CRS.Simple,
             minZoom: 1,
             maxZoom: 8,
         });
-    
+
         // tileSize defines the size of a single tile in pixels
         var tileSize = 512;
-    
+
         // Calculate bounds based on the single tile size at zoom level 1
         // The map.unproject method converts a point in pixel coordinates to geographical coordinates
         // Here, [tileSize, tileSize] is the bottom-right corner of the tile in pixel coordinates
@@ -107,12 +119,12 @@
         }).addTo(map);
         // Set the view to the center of your bounds and the appropriate zoom level
         map.fitBounds(bounds);
-    
+
         // Handling the style change
         document.querySelectorAll('input[name="style"]').forEach((elem) => {
             elem.addEventListener("change", applyStyle);
         });
-    
+
         function applyStyle() {
             console.log("Applying style");
             var style = document.querySelector('input[name="style"]:checked').value;
@@ -126,7 +138,7 @@
             }
         }
     </script>
-    
+
 
 </body>
 

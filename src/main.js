@@ -83,20 +83,12 @@ async function sendEmail(email, hash) {
     }
 }
 
-// app.get('/check-authentication', (request, response) => {
-//     console.log("NO SESSION DETECTED");
-//     if (!request.session.isAuthenicated){
-//         console.log("HELLO");
-//         return response.status(200).send();
-//     }
-//     else{
-//         console.log("SOMETHING WENT WRONG");
-//     }
-// });
+
 
 app.get('/tiles/:l/:x/:y', (req, res) => {
     if (!req.session.isAuthenicated){
-        return res.status(200).json({ status: "ERROR" })
+        // document.getElementById('wp2').style.display = 'none';
+        return res.status(200).json({ status: "ERROR", message: "User not authenicated"})
     }
     const { l, x, y } = req.params;
     const newX = parseInt(x);
@@ -156,6 +148,17 @@ app.post("/adduser", async (request, response) => {
     } catch (error) {
         console.error("Error adding user:", error);
         response.status(500).json({ status: 'ERROR', error: "Internal server error" });
+    }
+});
+
+app.get('/check-authentication', (request, response) => {
+    if (request.session.isAuthenicated){
+        console.log("User is authenicated");
+        return response.status(200).send();
+    }
+    else{
+        console.log("User is not authenicated");
+        return response.status(404).send();
     }
 });
 
