@@ -149,6 +149,7 @@ app.post("/adduser", async (request, response) => {
 app.get("/verify", async (request, response) => {
     const { email, key } = request.query;
     console.log("fired off");
+    console.log(email, key);
     try {
       // Find the user with the provided email
       const user = await User.findOne({ email });
