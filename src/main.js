@@ -216,7 +216,7 @@ app.post("/login", async (request, response) => {
 
 app.post("/logout", async (request, response) => {
     console.log("logout hit");
-    request.session.isAuthenicated = false;
+    request.session.isAuthenticated = false;
     request.session.userId = undefined;
     response.status(200).json({ status: 'OK', message: "User successfully logged out" });
 });
