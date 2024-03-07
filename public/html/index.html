@@ -88,9 +88,12 @@
                 } else if (response.status === 404) {
                     console.log("User is not logged in");
                     document.getElementById('wp2').style.display = 'none';
-                    return;
                 }
+            })
+            .catch(error => {
+                console.error('Error during authentication check:', error);
             });
+
 
         var map = L.map('wp2', {
             crs: L.CRS.Simple,
