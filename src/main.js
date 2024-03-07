@@ -86,10 +86,10 @@ async function sendEmail(email, hash) {
 
 
 app.get('/tiles/:l/:x/:y', (req, res) => {
-    if (!req.session.isAuthenicated){
-        // document.getElementById('wp2').style.display = 'none';
-        return res.status(200).json({ status: "ERROR", message: "User not authenicated"})
-    }
+    // if (!req.session.isAuthenicated){
+    //     // document.getElementById('wp2').style.display = 'none';
+    //     return res.status(200).json({ status: "ERROR", message: "User not authenicated"})
+    // }
     const { l, x, y } = req.params;
     const newX = parseInt(x);
     const newY = parseInt(y);
